@@ -27,9 +27,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jimscope.vendel.R
 import com.jimscope.vendel.data.local.entity.MessageLogEntity
 import com.jimscope.vendel.ui.theme.StatusDelivered
 import com.jimscope.vendel.ui.theme.StatusFailed
@@ -54,7 +56,7 @@ fun MessageLogScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Historial",
+            text = stringResource(R.string.log_title),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -63,7 +65,7 @@ fun MessageLogScreen(
 
         if (messages.isEmpty()) {
             Text(
-                text = "Sin mensajes aún",
+                text = stringResource(R.string.log_empty),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -92,7 +94,6 @@ private fun MessageLogItem(message: MessageLogEntity) {
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Direction icon
             Icon(
                 imageVector = if (message.direction == "outgoing")
                     Icons.AutoMirrored.Filled.CallMade
@@ -146,11 +147,11 @@ private fun StatusBadge(status: String) {
         else -> StatusPending
     }
     val label = when (status) {
-        "sent" -> "Enviado"
-        "delivered" -> "Entregado"
-        "failed" -> "Fallido"
-        "pending" -> "Pendiente"
-        "received" -> "Recibido"
+        "sent" -> stringResource(R.string.log_status_sent)
+        "delivered" -> stringResource(R.string.log_status_delivered)
+        "failed" -> stringResource(R.string.log_status_failed)
+        "pending" -> stringResource(R.string.log_status_pending)
+        "received" -> stringResource(R.string.log_status_received)
         else -> status
     }
 

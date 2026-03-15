@@ -1,3 +1,65 @@
 <resources>
     <string name="app_name">Vendel</string>
+
+    <!-- Setup -->
+    <string name="setup_title">Vendel Gateway</string>
+    <string name="setup_subtitle">Conecta tu dispositivo para enviar SMS</string>
+    <string name="setup_tab_qr">Escanear QR</string>
+    <string name="setup_tab_manual">Manual</string>
+    <string name="setup_camera_permission">Se necesita permiso de cámara para escanear el código QR</string>
+    <string name="setup_allow_camera">Permitir cámara</string>
+    <string name="setup_qr_hint">Escanea el código QR del panel de Vendel</string>
+    <string name="setup_server_url_label">URL del servidor</string>
+    <string name="setup_server_url_placeholder">https://api.vendel.cc</string>
+    <string name="setup_api_key_label">API Key</string>
+    <string name="setup_api_key_placeholder">Tu clave de API del dispositivo</string>
+    <string name="setup_connecting">Conectando…</string>
+    <string name="setup_connect">Conectar</string>
+    <string name="setup_qr_invalid">QR inválido</string>
+    <string name="setup_qr_invalid_detail">QR inválido: %1$s</string>
+    <string name="setup_fields_required">Completa ambos campos</string>
+    <string name="setup_connection_failed">Conexión fallida: %1$s</string>
+
+    <!-- Status -->
+    <string name="status_title">Estado</string>
+    <string name="status_connected">Conectado</string>
+    <string name="status_disconnected">Desconectado</string>
+    <string name="status_sent">Enviados</string>
+    <string name="status_failed">Fallidos</string>
+    <string name="status_pending">Pendientes</string>
+    <string name="status_queued">En cola</string>
+    <string name="status_sync_now">Sincronizar ahora</string>
+
+    <!-- Log -->
+    <string name="log_title">Historial</string>
+    <string name="log_empty">Sin mensajes aún</string>
+    <string name="log_status_sent">Enviado</string>
+    <string name="log_status_delivered">Entregado</string>
+    <string name="log_status_failed">Fallido</string>
+    <string name="log_status_pending">Pendiente</string>
+    <string name="log_status_received">Recibido</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_connection">Conexión</string>
+    <string name="settings_server">Servidor</string>
+    <string name="settings_not_configured">No configurado</string>
+    <string name="settings_device_id_pending">Pendiente</string>
+    <string name="settings_forward_sms">Reenviar SMS entrantes</string>
+    <string name="settings_forward_sms_desc">Enviar SMS recibidos al servidor</string>
+    <string name="settings_battery">Batería</string>
+    <string name="settings_battery_desc">Para que la app funcione en segundo plano, desactiva la optimización de batería.</string>
+    <string name="settings_battery_configure">Configurar batería</string>
+    <string name="settings_disconnect">Desconectar</string>
+    <string name="settings_version">Vendel Gateway v1.0</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">SMS Gateway</string>
+    <string name="notification_channel_desc">Muestra el estado del envío de SMS</string>
+    <string name="notification_title">Vendel Gateway</string>
+    <string name="notification_preparing">Preparando envío…</string>
+    <string name="notification_no_pending">Sin mensajes pendientes</string>
+    <string name="notification_sending">Enviando %1$d/%2$d…</string>
+    <string name="notification_complete">Completado: %1$d mensajes enviados</string>
+    <string name="notification_error">Error: %1$s</string>
 </resources>

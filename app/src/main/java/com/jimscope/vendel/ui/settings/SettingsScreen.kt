@@ -35,9 +35,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.getSystemService
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jimscope.vendel.R
 import com.jimscope.vendel.ui.theme.VendelBrand
 import com.jimscope.vendel.ui.theme.VendelDestructive
 
@@ -58,7 +60,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Ajustes",
+            text = stringResource(R.string.settings_title),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -72,11 +74,11 @@ fun SettingsScreen(
             shape = RoundedCornerShape(12.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Conexión", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.settings_connection), style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(12.dp))
 
-                SettingsRow("Servidor", uiState.config.serverUrl.ifBlank { "No configurado" })
-                SettingsRow("Device ID", uiState.config.deviceId.ifBlank { "Pendiente" })
+                SettingsRow(stringResource(R.string.settings_server), uiState.config.serverUrl.ifBlank { stringResource(R.string.settings_not_configured) })
+                SettingsRow("Device ID", uiState.config.deviceId.ifBlank { stringResource(R.string.settings_device_id_pending) })
             }
         }
 
@@ -97,9 +99,9 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Reenviar SMS entrantes", style = MaterialTheme.typography.bodyLarge)
+                        Text(stringResource(R.string.settings_forward_sms), style = MaterialTheme.typography.bodyLarge)
                         Text(
-                            "Enviar SMS recibidos al servidor",
+                            stringResource(R.string.settings_forward_sms_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -122,11 +124,11 @@ fun SettingsScreen(
             shape = RoundedCornerShape(12.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Batería", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.settings_battery), style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    "Para que la app funcione en segundo plano, desactiva la optimización de batería.",
+                    stringResource(R.string.settings_battery_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -146,7 +148,7 @@ fun SettingsScreen(
                 ) {
                     Icon(Icons.Default.BatteryAlert, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Configurar batería")
+                    Text(stringResource(R.string.settings_battery_configure))
                 }
             }
         }
@@ -164,14 +166,14 @@ fun SettingsScreen(
         ) {
             Icon(Icons.Default.Logout, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Desconectar")
+            Text(stringResource(R.string.settings_disconnect))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // App version
         Text(
-            text = "Vendel Gateway v1.0",
+            text = stringResource(R.string.settings_version),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.CenterHorizontally)

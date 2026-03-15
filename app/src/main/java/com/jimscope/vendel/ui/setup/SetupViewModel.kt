@@ -1,12 +1,15 @@
 package com.jimscope.vendel.ui.setup
 
+import android.app.Application
 import android.util.Log
 import com.jimscope.vendel.BuildConfig
-import androidx.lifecycle.ViewModel
+import com.jimscope.vendel.R
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jimscope.vendel.data.preferences.SecurePreferences
 import com.jimscope.vendel.data.repository.ConfigRepository
 import com.jimscope.vendel.data.repository.SmsRepository
+import androidx.compose.runtime.Immutable
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.JsonClass
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +26,7 @@ data class QrPayload(
     val version: String
 )
 
+@Immutable
 data class SetupUiState(
     val serverUrl: String = "",
     val apiKey: String = "",
@@ -33,14 +37,18 @@ data class SetupUiState(
 
 @HiltViewModel
 class SetupViewModel @Inject constructor(
+    application: Application,
     private val configRepository: ConfigRepository,
     private val securePreferences: SecurePreferences,
     private val smsRepository: SmsRepository,
     private val moshi: Moshi
-) : ViewModel() {
+) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(SetupUiState())
     val uiState: StateFlow<SetupUiState> = _uiState.asStateFlow()
+
+    private fun getString(resId: Int): String = getApplication<Application>().getString(resId)
+    private fun getString(resId: Int, vararg args: Any): String = getApplication<Application>().getString(resId, *args)
 
     fun updateServerUrl(url: String) {
         _uiState.value = _uiState.value.copy(serverUrl = url, error = null)
@@ -62,18 +70,20 @@ class SetupViewModel @Inject constructor(
                 )
                 connect()
             } else {
-                _uiState.value = _uiState.value.copy(error = "QR inválido")
+                _uiState.value = _uiState.value.copy(error = getString(R.string.setup_qr_invalid))
             }
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) Log.e(TAG, "QR parse error", e)
-            _uiState.value = _uiState.value.copy(error = "QR inválido: ${e.message}")
+            _uiState.value = _uiState.value.copy(
+                error = getString(R.string.setup_qr_invalid_detail, e.message ?: "")
+            )
         }
     }
 
     fun connect() {
         val state = _uiState.value
         if (state.serverUrl.isBlank() || state.apiKey.isBlank()) {
-            _uiState.value = state.copy(error = "Completa ambos campos")
+            _uiState.value = state.copy(error = getString(R.string.setup_fields_required))
             return
         }
 
@@ -81,13 +91,9 @@ class SetupViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                // Save config first so Retrofit picks up the new base URL
                 configRepository.saveConfig(state.serverUrl, state.apiKey)
-
-                // Validate by fetching pending messages
                 smsRepository.fetchAndProcessPending().getOrThrow()
 
-                // Register pending FCM token if any
                 val pendingToken = securePreferences.pendingFcmToken
                 if (pendingToken.isNotBlank()) {
                     smsRepository.updateFcmToken(pendingToken)
@@ -100,7 +106,7 @@ class SetupViewModel @Inject constructor(
                 configRepository.disconnect()
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Conexión fallida: ${e.message}"
+                    error = getString(R.string.setup_connection_failed, e.message ?: "")
                 )
             }
         }

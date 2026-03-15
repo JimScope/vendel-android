@@ -34,8 +34,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jimscope.vendel.R
 import com.jimscope.vendel.service.SmsSenderService
 import com.jimscope.vendel.ui.theme.StatusDelivered
 import com.jimscope.vendel.ui.theme.StatusFailed
@@ -58,7 +60,7 @@ fun StatusScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Estado",
+            text = stringResource(R.string.status_title),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -85,7 +87,7 @@ fun StatusScreen(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = if (uiState.config.isConfigured) "Conectado" else "Desconectado",
+                        text = if (uiState.config.isConfigured) stringResource(R.string.status_connected) else stringResource(R.string.status_disconnected),
                         style = MaterialTheme.typography.titleMedium
                     )
                     if (uiState.config.isConfigured) {
@@ -108,13 +110,13 @@ fun StatusScreen(
         ) {
             StatCard(
                 modifier = Modifier.weight(1f),
-                label = "Enviados",
+                label = stringResource(R.string.status_sent),
                 count = uiState.sentCount,
                 icon = { Icon(Icons.Default.CheckCircle, null, tint = StatusSent) }
             )
             StatCard(
                 modifier = Modifier.weight(1f),
-                label = "Fallidos",
+                label = stringResource(R.string.status_failed),
                 count = uiState.failedCount,
                 icon = { Icon(Icons.Default.Error, null, tint = StatusFailed) }
             )
@@ -128,13 +130,13 @@ fun StatusScreen(
         ) {
             StatCard(
                 modifier = Modifier.weight(1f),
-                label = "Pendientes",
+                label = stringResource(R.string.status_pending),
                 count = uiState.pendingCount,
                 icon = { Icon(Icons.Default.HourglassBottom, null, tint = StatusPending) }
             )
             StatCard(
                 modifier = Modifier.weight(1f),
-                label = "En cola",
+                label = stringResource(R.string.status_queued),
                 count = uiState.queuedReports,
                 icon = { Icon(Icons.Default.Sync, null, tint = VendelBrand) }
             )
@@ -151,7 +153,7 @@ fun StatusScreen(
         ) {
             Icon(Icons.Default.Sync, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Sincronizar ahora")
+            Text(stringResource(R.string.status_sync_now))
         }
     }
 }

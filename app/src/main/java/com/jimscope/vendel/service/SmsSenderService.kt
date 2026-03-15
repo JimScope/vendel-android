@@ -47,11 +47,11 @@ class SmsSenderService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(
                 NOTIFICATION_ID,
-                buildNotification("Preparando envío..."),
+                buildNotification(getString(R.string.notification_preparing)),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         } else {
-            startForeground(NOTIFICATION_ID, buildNotification("Preparando envío..."))
+            startForeground(NOTIFICATION_ID, buildNotification(getString(R.string.notification_preparing)))
         }
 
         serviceScope.launch {
@@ -63,7 +63,7 @@ class SmsSenderService : Service() {
                 val messages = smsRepository.fetchAndProcessPending().getOrThrow()
 
                 if (messages.isEmpty()) {
-                    updateNotification("Sin mensajes pendientes")
+                    updateNotification(getString(R.string.notification_no_pending))
                     stopSelf()
                     return@launch
                 }
@@ -72,7 +72,7 @@ class SmsSenderService : Service() {
                 sendMessages(messages)
             } catch (e: Exception) {
                 Log.e(TAG, "Service error", e)
-                updateNotification("Error: ${e.message}")
+                updateNotification(getString(R.string.notification_error, e.message ?: ""))
             } finally {
                 delay(NOTIFICATION_DISPLAY_MS)
                 stopSelf()
@@ -87,7 +87,7 @@ class SmsSenderService : Service() {
         val smsManager = getSystemService(SmsManager::class.java)
 
         messages.forEachIndexed { index, message ->
-            updateNotification("Enviando ${index + 1}/$total...")
+            updateNotification(getString(R.string.notification_sending, index + 1, total))
 
             try {
                 val body = message.body
@@ -109,7 +109,7 @@ class SmsSenderService : Service() {
             }
         }
 
-        updateNotification("Completado: $total mensajes enviados")
+        updateNotification(getString(R.string.notification_complete, total))
     }
 
     private fun sendSingleSms(smsManager: SmsManager, message: PendingMessage) {
@@ -180,10 +180,10 @@ class SmsSenderService : Service() {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "SMS Gateway",
+            getString(R.string.notification_channel_name),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Muestra el estado del envío de SMS"
+            description = getString(R.string.notification_channel_desc)
         }
         notificationManager.createNotificationChannel(channel)
     }
@@ -195,7 +195,7 @@ class SmsSenderService : Service() {
             PendingIntent.FLAG_IMMUTABLE
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Vendel Gateway")
+            .setContentTitle(getString(R.string.notification_title))
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)

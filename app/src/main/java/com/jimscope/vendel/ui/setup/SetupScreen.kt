@@ -3,6 +3,7 @@ package com.jimscope.vendel.ui.setup
 import android.Manifest
 import android.util.Log
 import com.jimscope.vendel.BuildConfig
+import com.jimscope.vendel.R
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -45,11 +46,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -68,7 +71,7 @@ fun SetupScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
-    var cameraPermissionGranted by remember { mutableStateOf(false) }
+    var cameraPermissionGranted by rememberSaveable { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -92,7 +95,7 @@ fun SetupScreen(
         Spacer(modifier = Modifier.height(48.dp))
 
         Text(
-            text = "Vendel Gateway",
+            text = stringResource(R.string.setup_title),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -100,7 +103,7 @@ fun SetupScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Conecta tu dispositivo para enviar SMS",
+            text = stringResource(R.string.setup_subtitle),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -115,13 +118,13 @@ fun SetupScreen(
             Tab(
                 selected = selectedTab == 0,
                 onClick = { selectedTab = 0 },
-                text = { Text("Escanear QR") },
+                text = { Text(stringResource(R.string.setup_tab_qr)) },
                 icon = { Icon(Icons.Default.CameraAlt, contentDescription = null) }
             )
             Tab(
                 selected = selectedTab == 1,
                 onClick = { selectedTab = 1 },
-                text = { Text("Manual") },
+                text = { Text(stringResource(R.string.setup_tab_manual)) },
                 icon = { Icon(Icons.Default.Edit, contentDescription = null) }
             )
         }
@@ -181,7 +184,7 @@ private fun QrScanTab(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Se necesita permiso de cámara para escanear el código QR",
+                text = stringResource(R.string.setup_camera_permission),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -191,7 +194,7 @@ private fun QrScanTab(
                 onClick = onRequestPermission,
                 colors = ButtonDefaults.buttonColors(containerColor = VendelBrand)
             ) {
-                Text("Permitir cámara")
+                Text(stringResource(R.string.setup_allow_camera))
             }
         }
     } else {
@@ -287,7 +290,7 @@ private fun QrCameraPreview(onQrScanned: (String) -> Unit) {
     Spacer(modifier = Modifier.height(12.dp))
 
     Text(
-        text = "Escanea el código QR del panel de Vendel",
+        text = stringResource(R.string.setup_qr_hint),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,
@@ -311,8 +314,8 @@ private fun ManualInputTab(
         OutlinedTextField(
             value = serverUrl,
             onValueChange = onServerUrlChange,
-            label = { Text("URL del servidor") },
-            placeholder = { Text("https://api.vendel.cc") },
+            label = { Text(stringResource(R.string.setup_server_url_label)) },
+            placeholder = { Text(stringResource(R.string.setup_server_url_placeholder)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -320,8 +323,8 @@ private fun ManualInputTab(
         OutlinedTextField(
             value = apiKey,
             onValueChange = onApiKeyChange,
-            label = { Text("API Key") },
-            placeholder = { Text("Tu clave de API del dispositivo") },
+            label = { Text(stringResource(R.string.setup_api_key_label)) },
+            placeholder = { Text(stringResource(R.string.setup_api_key_placeholder)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -333,7 +336,7 @@ private fun ManualInputTab(
             colors = ButtonDefaults.buttonColors(containerColor = VendelBrand)
         ) {
             Text(
-                text = if (isLoading) "Conectando..." else "Conectar",
+                text = if (isLoading) stringResource(R.string.setup_connecting) else stringResource(R.string.setup_connect),
                 modifier = Modifier.padding(vertical = 4.dp)
             )
         }

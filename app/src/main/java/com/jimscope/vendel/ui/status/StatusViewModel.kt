@@ -1,5 +1,6 @@
 package com.jimscope.vendel.ui.status
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jimscope.vendel.data.local.dao.MessageLogDao
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+@Immutable
 data class StatusUiState(
     val config: ConnectionConfig = ConnectionConfig(),
     val sentCount: Int = 0,

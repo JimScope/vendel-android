@@ -1,5 +1,6 @@
 package com.jimscope.vendel.ui.settings
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jimscope.vendel.data.preferences.SecurePreferences
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+@Immutable
 data class SettingsUiState(
     val config: ConnectionConfig = ConnectionConfig(),
     val incomingSmsEnabled: Boolean = false
