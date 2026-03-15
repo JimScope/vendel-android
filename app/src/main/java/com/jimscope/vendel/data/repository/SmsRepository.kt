@@ -21,43 +21,36 @@ class SmsRepository @Inject constructor(
     private val messageLogDao: MessageLogDao,
     private val configRepository: ConfigRepository
 ) {
-    suspend fun fetchAndProcessPending(): List<PendingMessage> {
-        return try {
+    suspend fun fetchAndProcessPending(): Result<List<PendingMessage>> {
+        return runCatching {
             val response = api.fetchPending()
-            if (response.isSuccessful) {
-                val body = response.body() ?: return emptyList()
-                // Save device ID from response
-                if (body.deviceId.isNotBlank()) {
-                    configRepository.saveDeviceId(body.deviceId)
-                }
-                // Log each message
-                body.messages.forEach { msg ->
-                    messageLogDao.insert(
-                        MessageLogEntity(
-                            messageId = msg.messageId,
-                            recipient = msg.recipient,
-                            body = msg.body,
-                            direction = "outgoing",
-                            status = "pending"
-                        )
-                    )
-                }
-                body.messages
-            } else {
+            if (!response.isSuccessful) {
                 Log.e(TAG, "fetchPending failed: ${response.code()} ${response.message()}")
-                emptyList()
+                return Result.success(emptyList())
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "fetchPending error", e)
-            emptyList()
-        }
+            val body = response.body() ?: return Result.success(emptyList())
+            if (body.deviceId.isNotBlank()) {
+                configRepository.saveDeviceId(body.deviceId)
+            }
+            body.messages.forEach { msg ->
+                messageLogDao.insert(
+                    MessageLogEntity(
+                        messageId = msg.messageId,
+                        recipient = msg.recipient,
+                        body = msg.body,
+                        direction = "outgoing",
+                        status = "pending"
+                    )
+                )
+            }
+            body.messages
+        }.onFailure { Log.e(TAG, "fetchPending error", it) }
     }
 
     suspend fun reportStatus(messageId: String, status: String, errorMessage: String? = null) {
-        // Update local log
         messageLogDao.updateStatus(messageId, status, errorMessage)
 
-        try {
+        val result = runCatching {
             val response = api.reportStatus(
                 StatusReportRequest(messageId, status, errorMessage)
             )
@@ -65,8 +58,9 @@ class SmsRepository @Inject constructor(
                 Log.e(TAG, "reportStatus failed: ${response.code()}, queuing locally")
                 queueReport(messageId, status, errorMessage)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "reportStatus error, queuing locally", e)
+        }
+        result.onFailure {
+            Log.e(TAG, "reportStatus error, queuing locally", it)
             queueReport(messageId, status, errorMessage)
         }
     }
@@ -81,8 +75,8 @@ class SmsRepository @Inject constructor(
         )
     }
 
-    suspend fun reportIncoming(fromNumber: String, body: String, timestamp: String) {
-        try {
+    suspend fun reportIncoming(fromNumber: String, body: String, timestamp: String): Result<Unit> {
+        return runCatching {
             val response = api.reportIncoming(
                 IncomingSmsRequest(fromNumber, body, timestamp)
             )
@@ -101,8 +95,8 @@ class SmsRepository @Inject constructor(
                     status = "received"
                 )
             )
-        } catch (e: Exception) {
-            Log.e(TAG, "reportIncoming error", e)
+        }.onFailure {
+            Log.e(TAG, "reportIncoming error", it)
             messageLogDao.insert(
                 MessageLogEntity(
                     messageId = "local-${System.currentTimeMillis()}",
@@ -118,30 +112,28 @@ class SmsRepository @Inject constructor(
     suspend fun flushQueuedReports() {
         val queued = pendingReportDao.getAll()
         for (report in queued) {
-            try {
+            val result = runCatching {
                 val response = api.reportStatus(
                     StatusReportRequest(report.messageId, report.status, report.errorMessage)
                 )
                 if (response.isSuccessful) {
                     pendingReportDao.delete(report.id)
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "flushQueuedReports error for ${report.messageId}", e)
-                // Stop flushing on network error - will retry later
+            }
+            if (result.isFailure) {
+                Log.e(TAG, "flushQueuedReports error for ${report.messageId}", result.exceptionOrNull())
                 break
             }
         }
     }
 
-    suspend fun updateFcmToken(token: String) {
-        try {
+    suspend fun updateFcmToken(token: String): Result<Unit> {
+        return runCatching {
             val response = api.updateFcmToken(FcmTokenRequest(token))
             if (!response.isSuccessful) {
                 Log.e(TAG, "updateFcmToken failed: ${response.code()}")
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "updateFcmToken error", e)
-        }
+        }.onFailure { Log.e(TAG, "updateFcmToken error", it) }
     }
 
     suspend fun pruneOldLogs(daysToKeep: Int = 7) {

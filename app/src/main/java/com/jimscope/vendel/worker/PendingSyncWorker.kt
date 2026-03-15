@@ -31,7 +31,7 @@ class PendingSyncWorker @AssistedInject constructor(
             smsRepository.flushQueuedReports()
 
             // Check for pending messages
-            val messages = smsRepository.fetchAndProcessPending()
+            val messages = smsRepository.fetchAndProcessPending().getOrDefault(emptyList())
             if (messages.isNotEmpty()) {
                 SmsSenderService.start(applicationContext)
             }

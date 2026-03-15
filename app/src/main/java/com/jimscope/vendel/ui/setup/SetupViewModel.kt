@@ -85,7 +85,7 @@ class SetupViewModel @Inject constructor(
                 configRepository.saveConfig(state.serverUrl, state.apiKey)
 
                 // Validate by fetching pending messages
-                smsRepository.fetchAndProcessPending()
+                smsRepository.fetchAndProcessPending().getOrThrow()
 
                 // Register pending FCM token if any
                 val pendingToken = securePreferences.pendingFcmToken

@@ -36,9 +36,9 @@ import com.jimscope.vendel.ui.theme.StatusFailed
 import com.jimscope.vendel.ui.theme.StatusPending
 import com.jimscope.vendel.ui.theme.StatusSent
 import com.jimscope.vendel.ui.theme.VendelBrand
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun MessageLogScreen(
@@ -161,7 +161,10 @@ private fun StatusBadge(status: String) {
     )
 }
 
+private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
 private fun formatTimestamp(millis: Long): String {
-    val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
-    return sdf.format(Date(millis))
+    return Instant.ofEpochMilli(millis)
+        .atZone(ZoneId.systemDefault())
+        .format(timeFormatter)
 }

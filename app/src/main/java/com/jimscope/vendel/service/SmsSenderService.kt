@@ -60,7 +60,7 @@ class SmsSenderService : Service() {
                 smsRepository.flushQueuedReports()
 
                 // 2. Fetch pending messages
-                val messages = smsRepository.fetchAndProcessPending()
+                val messages = smsRepository.fetchAndProcessPending().getOrThrow()
 
                 if (messages.isEmpty()) {
                     updateNotification("Sin mensajes pendientes")
@@ -74,7 +74,7 @@ class SmsSenderService : Service() {
                 Log.e(TAG, "Service error", e)
                 updateNotification("Error: ${e.message}")
             } finally {
-                delay(2000) // Brief display of final status
+                delay(NOTIFICATION_DISPLAY_MS)
                 stopSelf()
             }
         }
@@ -91,7 +91,7 @@ class SmsSenderService : Service() {
 
             try {
                 val body = message.body
-                if (body.length > 160) {
+                if (body.length > SINGLE_SMS_MAX_LENGTH) {
                     sendMultipartSms(smsManager, message)
                 } else {
                     sendSingleSms(smsManager, message)
@@ -105,7 +105,7 @@ class SmsSenderService : Service() {
 
             // Rate limiting: 1s delay between sends
             if (index < total - 1) {
-                delay(1000)
+                delay(RATE_LIMIT_DELAY_MS)
             }
         }
 
@@ -221,6 +221,10 @@ class SmsSenderService : Service() {
         const val EXTRA_MESSAGE_ID = "message_id"
         const val EXTRA_PART_INDEX = "part_index"
         const val EXTRA_TOTAL_PARTS = "total_parts"
+
+        private const val SINGLE_SMS_MAX_LENGTH = 160
+        private const val RATE_LIMIT_DELAY_MS = 1000L
+        private const val NOTIFICATION_DISPLAY_MS = 2000L
 
         val multipartTracker = ConcurrentHashMap<String, AtomicInteger>()
 
