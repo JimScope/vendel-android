@@ -203,6 +203,11 @@ private fun QrScanTab(
 private fun QrCameraPreview(onQrScanned: (String) -> Unit) {
     val context = LocalContext.current
     var scanned by remember { mutableStateOf(false) }
+    val executor = remember { Executors.newSingleThreadExecutor() }
+
+    DisposableEffect(Unit) {
+        onDispose { executor.shutdown() }
+    }
 
     Box(
         modifier = Modifier
@@ -214,7 +219,6 @@ private fun QrCameraPreview(onQrScanned: (String) -> Unit) {
             factory = { ctx ->
                 val previewView = PreviewView(ctx)
                 val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
-                val executor = Executors.newSingleThreadExecutor()
 
                 cameraProviderFuture.addListener({
                     val cameraProvider = cameraProviderFuture.get()

@@ -11,6 +11,7 @@ import com.jimscope.vendel.data.repository.SmsRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
@@ -32,7 +33,7 @@ class SmsReceiver : BroadcastReceiver() {
         val grouped = messages.groupBy { it.originatingAddress ?: "unknown" }
 
         val pendingResult = goAsync()
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
                 for ((sender, parts) in grouped) {
                     val body = parts.joinToString("") { it.messageBody ?: "" }

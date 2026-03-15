@@ -10,6 +10,7 @@ import com.jimscope.vendel.data.repository.SmsRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,7 +30,7 @@ class SmsDeliveredReceiver : BroadcastReceiver() {
         if (BuildConfig.DEBUG) Log.d(TAG, "SMS $messageId delivered")
 
         val pendingResult = goAsync()
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
                 smsRepository.reportStatus(messageId, status)
             } catch (e: Exception) {

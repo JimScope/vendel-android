@@ -11,6 +11,7 @@ import com.jimscope.vendel.data.repository.SmsRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,10 +33,12 @@ class SmsSentReceiver : BroadcastReceiver() {
                 // For multipart, only report when all parts sent
                 if (totalParts > 1) {
                     val remaining = SmsSenderService.multipartTracker[messageId]
-                    if (remaining != null && remaining.decrementAndGet() > 0) {
+                        ?: return // Already processed
+                    if (remaining.decrementAndGet() > 0) {
                         return // More parts pending
                     }
-                    SmsSenderService.multipartTracker.remove(messageId)
+                    // Atomic remove: only proceed if we're the one who removed it
+                    if (!SmsSenderService.multipartTracker.remove(messageId, remaining)) return
                 }
                 status = "sent"
                 errorMessage = null
@@ -65,7 +68,7 @@ class SmsSentReceiver : BroadcastReceiver() {
         if (BuildConfig.DEBUG) Log.d(TAG, "SMS $messageId part $partIndex: $status ($errorMessage)")
 
         val pendingResult = goAsync()
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
                 smsRepository.reportStatus(messageId, status, errorMessage)
             } catch (e: Exception) {
