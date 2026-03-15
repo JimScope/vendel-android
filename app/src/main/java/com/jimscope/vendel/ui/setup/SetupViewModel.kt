@@ -4,12 +4,10 @@ import android.app.Application
 import android.util.Log
 import com.jimscope.vendel.BuildConfig
 import com.jimscope.vendel.R
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.jimscope.vendel.data.preferences.SecurePreferences
-import com.jimscope.vendel.data.repository.ConfigRepository
-import com.jimscope.vendel.data.repository.SmsRepository
-import androidx.compose.runtime.Immutable
+import com.jimscope.vendel.domain.ConnectDeviceUseCase
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.JsonClass
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,9 +36,7 @@ data class SetupUiState(
 @HiltViewModel
 class SetupViewModel @Inject constructor(
     application: Application,
-    private val configRepository: ConfigRepository,
-    private val securePreferences: SecurePreferences,
-    private val smsRepository: SmsRepository,
+    private val connectDevice: ConnectDeviceUseCase,
     private val moshi: Moshi
 ) : AndroidViewModel(application) {
 
@@ -90,25 +86,17 @@ class SetupViewModel @Inject constructor(
         _uiState.value = state.copy(isLoading = true, error = null)
 
         viewModelScope.launch {
-            try {
-                configRepository.saveConfig(state.serverUrl, state.apiKey)
-                smsRepository.fetchAndProcessPending().getOrThrow()
-
-                val pendingToken = securePreferences.pendingFcmToken
-                if (pendingToken.isNotBlank()) {
-                    smsRepository.updateFcmToken(pendingToken)
-                    securePreferences.pendingFcmToken = ""
+            connectDevice(state.serverUrl, state.apiKey)
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(isLoading = false, isConnected = true)
                 }
-
-                _uiState.value = _uiState.value.copy(isLoading = false, isConnected = true)
-            } catch (e: Exception) {
-                if (BuildConfig.DEBUG) Log.e(TAG, "Connection failed", e)
-                configRepository.disconnect()
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = getString(R.string.setup_connection_failed, e.message ?: "")
-                )
-            }
+                .onFailure { e ->
+                    if (BuildConfig.DEBUG) Log.e(TAG, "Connection failed", e)
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = getString(R.string.setup_connection_failed, e.message ?: "")
+                    )
+                }
         }
     }
 

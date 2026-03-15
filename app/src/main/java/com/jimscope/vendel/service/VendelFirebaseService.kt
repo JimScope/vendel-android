@@ -4,8 +4,7 @@ import android.util.Log
 import com.jimscope.vendel.BuildConfig
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.jimscope.vendel.data.preferences.SecurePreferences
-import com.jimscope.vendel.data.repository.SmsRepository
+import com.jimscope.vendel.domain.RegisterFcmTokenUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,8 +16,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class VendelFirebaseService : FirebaseMessagingService() {
 
-    @Inject lateinit var securePreferences: SecurePreferences
-    @Inject lateinit var smsRepository: SmsRepository
+    @Inject lateinit var registerFcmToken: RegisterFcmTokenUseCase
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -38,17 +36,8 @@ class VendelFirebaseService : FirebaseMessagingService() {
         super.onNewToken(token)
         if (BuildConfig.DEBUG) Log.d(TAG, "New FCM token received")
 
-        if (securePreferences.isConfigured) {
-            serviceScope.launch {
-                try {
-                    smsRepository.updateFcmToken(token)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to update FCM token, saving for later", e)
-                    securePreferences.pendingFcmToken = token
-                }
-            }
-        } else {
-            securePreferences.pendingFcmToken = token
+        serviceScope.launch {
+            registerFcmToken(token)
         }
     }
 

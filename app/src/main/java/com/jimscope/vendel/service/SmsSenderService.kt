@@ -17,6 +17,7 @@ import com.jimscope.vendel.MainActivity
 import com.jimscope.vendel.R
 import com.jimscope.vendel.data.remote.dto.PendingMessage
 import com.jimscope.vendel.data.repository.SmsRepository
+import com.jimscope.vendel.domain.SyncPendingUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +33,7 @@ import javax.inject.Inject
 class SmsSenderService : Service() {
 
     @Inject lateinit var smsRepository: SmsRepository
+    @Inject lateinit var syncPending: SyncPendingUseCase
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
@@ -56,11 +58,7 @@ class SmsSenderService : Service() {
 
         serviceScope.launch {
             try {
-                // 1. Flush queued reports
-                smsRepository.flushQueuedReports()
-
-                // 2. Fetch pending messages
-                val messages = smsRepository.fetchAndProcessPending().getOrThrow()
+                val messages = syncPending().getOrThrow()
 
                 if (messages.isEmpty()) {
                     updateNotification(getString(R.string.notification_no_pending))
