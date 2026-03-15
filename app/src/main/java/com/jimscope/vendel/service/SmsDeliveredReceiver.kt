@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.jimscope.vendel.BuildConfig
 import com.jimscope.vendel.data.repository.SmsRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +26,7 @@ class SmsDeliveredReceiver : BroadcastReceiver() {
             else -> return // Don't report non-delivery; "sent" status is sufficient
         }
 
-        Log.d(TAG, "SMS $messageId delivered")
+        if (BuildConfig.DEBUG) Log.d(TAG, "SMS $messageId delivered")
 
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {

@@ -1,6 +1,7 @@
 package com.jimscope.vendel.ui.setup
 
 import android.util.Log
+import com.jimscope.vendel.BuildConfig
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jimscope.vendel.data.preferences.SecurePreferences
@@ -64,7 +65,7 @@ class SetupViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(error = "QR inválido")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "QR parse error", e)
+            if (BuildConfig.DEBUG) Log.e(TAG, "QR parse error", e)
             _uiState.value = _uiState.value.copy(error = "QR inválido: ${e.message}")
         }
     }
@@ -95,7 +96,7 @@ class SetupViewModel @Inject constructor(
 
                 _uiState.value = _uiState.value.copy(isLoading = false, isConnected = true)
             } catch (e: Exception) {
-                Log.e(TAG, "Connection failed", e)
+                if (BuildConfig.DEBUG) Log.e(TAG, "Connection failed", e)
                 configRepository.disconnect()
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,

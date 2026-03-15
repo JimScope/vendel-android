@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
 import android.util.Log
+import com.jimscope.vendel.BuildConfig
 import com.jimscope.vendel.data.preferences.SecurePreferences
 import com.jimscope.vendel.data.repository.SmsRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,7 +40,7 @@ class SmsReceiver : BroadcastReceiver() {
                         parts.first().timestampMillis
                     ).toString()
 
-                    Log.d(TAG, "Incoming SMS from $sender: ${body.take(50)}...")
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Incoming SMS from $sender")
                     smsRepository.reportIncoming(sender, body, timestamp)
                 }
             } catch (e: Exception) {

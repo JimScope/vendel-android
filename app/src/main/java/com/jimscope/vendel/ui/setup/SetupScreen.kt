@@ -2,6 +2,7 @@ package com.jimscope.vendel.ui.setup
 
 import android.Manifest
 import android.util.Log
+import com.jimscope.vendel.BuildConfig
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -269,7 +270,7 @@ private fun QrCameraPreview(onQrScanned: (String) -> Unit) {
                             imageAnalysis
                         )
                     } catch (e: Exception) {
-                        Log.e("QrCamera", "Camera bind failed", e)
+                        if (BuildConfig.DEBUG) Log.e("QrCamera", "Camera bind failed", e)
                     }
                 }, ContextCompat.getMainExecutor(ctx))
 

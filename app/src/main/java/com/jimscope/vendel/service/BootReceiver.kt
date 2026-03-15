@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.jimscope.vendel.BuildConfig
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.jimscope.vendel.worker.PendingSyncWorker
@@ -12,7 +13,7 @@ class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            Log.d(TAG, "Boot completed, enqueuing sync worker")
+            if (BuildConfig.DEBUG) Log.d(TAG, "Boot completed, enqueuing sync worker")
             val workRequest = OneTimeWorkRequestBuilder<PendingSyncWorker>().build()
             WorkManager.getInstance(context).enqueue(workRequest)
         }

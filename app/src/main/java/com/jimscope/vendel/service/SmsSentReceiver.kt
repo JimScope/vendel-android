@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.telephony.SmsManager
 import android.util.Log
+import com.jimscope.vendel.BuildConfig
 import com.jimscope.vendel.data.repository.SmsRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -61,7 +62,7 @@ class SmsSentReceiver : BroadcastReceiver() {
             }
         }
 
-        Log.d(TAG, "SMS $messageId part $partIndex: $status ($errorMessage)")
+        if (BuildConfig.DEBUG) Log.d(TAG, "SMS $messageId part $partIndex: $status ($errorMessage)")
 
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {

@@ -2,6 +2,7 @@ package com.jimscope.vendel.worker
 
 import android.content.Context
 import android.util.Log
+import com.jimscope.vendel.BuildConfig
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -21,7 +22,7 @@ class PendingSyncWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         if (!securePreferences.isConfigured) {
-            Log.d(TAG, "Not configured, skipping sync")
+            if (BuildConfig.DEBUG) Log.d(TAG, "Not configured, skipping sync")
             return Result.success()
         }
 

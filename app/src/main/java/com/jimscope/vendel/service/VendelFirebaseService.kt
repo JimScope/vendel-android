@@ -1,6 +1,7 @@
 package com.jimscope.vendel.service
 
 import android.util.Log
+import com.jimscope.vendel.BuildConfig
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.jimscope.vendel.data.preferences.SecurePreferences
@@ -22,19 +23,19 @@ class VendelFirebaseService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        Log.d(TAG, "FCM message received: ${message.data}")
+        if (BuildConfig.DEBUG) Log.d(TAG, "FCM message received: ${message.data}")
 
         val type = message.data["type"]
         if (type == "tickle") {
             val count = message.data["count"]?.toIntOrNull() ?: 0
-            Log.d(TAG, "Tickle received, $count messages pending")
+            if (BuildConfig.DEBUG) Log.d(TAG, "Tickle received, $count messages pending")
             SmsSenderService.start(this)
         }
     }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d(TAG, "New FCM token: $token")
+        if (BuildConfig.DEBUG) Log.d(TAG, "New FCM token received")
 
         if (securePreferences.isConfigured) {
             serviceScope.launch {
