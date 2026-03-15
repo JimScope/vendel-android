@@ -1,0 +1,232 @@
+package com.jimscope.vendel.service
+
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.os.Build
+import android.os.IBinder
+import android.telephony.SmsManager
+import android.util.Log
+import androidx.core.app.NotificationCompat
+import com.jimscope.vendel.MainActivity
+import com.jimscope.vendel.R
+import com.jimscope.vendel.data.remote.dto.PendingMessage
+import com.jimscope.vendel.data.repository.SmsRepository
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class SmsSenderService : Service() {
+
+    @Inject lateinit var smsRepository: SmsRepository
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
+
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannel()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                NOTIFICATION_ID,
+                buildNotification("Preparando envío..."),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            startForeground(NOTIFICATION_ID, buildNotification("Preparando envío..."))
+        }
+
+        serviceScope.launch {
+            try {
+                // 1. Flush queued reports
+                smsRepository.flushQueuedReports()
+
+                // 2. Fetch pending messages
+                val messages = smsRepository.fetchAndProcessPending()
+
+                if (messages.isEmpty()) {
+                    updateNotification("Sin mensajes pendientes")
+                    stopSelf()
+                    return@launch
+                }
+
+                // 3. Send each SMS sequentially with delay
+                sendMessages(messages)
+            } catch (e: Exception) {
+                Log.e(TAG, "Service error", e)
+                updateNotification("Error: ${e.message}")
+            } finally {
+                delay(2000) // Brief display of final status
+                stopSelf()
+            }
+        }
+
+        return START_NOT_STICKY
+    }
+
+    private suspend fun sendMessages(messages: List<PendingMessage>) {
+        val total = messages.size
+        val smsManager = getSystemService(SmsManager::class.java)
+
+        messages.forEachIndexed { index, message ->
+            updateNotification("Enviando ${index + 1}/$total...")
+
+            try {
+                val body = message.body
+                if (body.length > 160) {
+                    sendMultipartSms(smsManager, message)
+                } else {
+                    sendSingleSms(smsManager, message)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Send error for ${message.messageId}", e)
+                smsRepository.reportStatus(
+                    message.messageId, "failed", e.message ?: "Send failed"
+                )
+            }
+
+            // Rate limiting: 1s delay between sends
+            if (index < total - 1) {
+                delay(1000)
+            }
+        }
+
+        updateNotification("Completado: $total mensajes enviados")
+    }
+
+    private fun sendSingleSms(smsManager: SmsManager, message: PendingMessage) {
+        val sentIntent = createSentPendingIntent(message.messageId, 0, 1)
+        val deliveredIntent = createDeliveredPendingIntent(message.messageId, 0, 1)
+
+        smsManager.sendTextMessage(
+            message.recipient,
+            null,
+            message.body,
+            sentIntent,
+            deliveredIntent
+        )
+    }
+
+    private fun sendMultipartSms(smsManager: SmsManager, message: PendingMessage) {
+        val parts = smsManager.divideMessage(message.body)
+        val totalParts = parts.size
+
+        // Track multipart completion
+        multipartTracker[message.messageId] = AtomicInteger(totalParts)
+
+        val sentIntents = ArrayList<PendingIntent>(totalParts)
+        val deliveredIntents = ArrayList<PendingIntent>(totalParts)
+
+        for (i in parts.indices) {
+            sentIntents.add(createSentPendingIntent(message.messageId, i, totalParts))
+            deliveredIntents.add(createDeliveredPendingIntent(message.messageId, i, totalParts))
+        }
+
+        smsManager.sendMultipartTextMessage(
+            message.recipient,
+            null,
+            parts,
+            sentIntents,
+            deliveredIntents
+        )
+    }
+
+    private fun createSentPendingIntent(messageId: String, partIndex: Int, totalParts: Int): PendingIntent {
+        val intent = Intent(SMS_SENT_ACTION).apply {
+            setPackage(packageName)
+            putExtra(EXTRA_MESSAGE_ID, messageId)
+            putExtra(EXTRA_PART_INDEX, partIndex)
+            putExtra(EXTRA_TOTAL_PARTS, totalParts)
+        }
+        val requestCode = "$messageId-sent-$partIndex".hashCode()
+        return PendingIntent.getBroadcast(
+            this, requestCode, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    private fun createDeliveredPendingIntent(messageId: String, partIndex: Int, totalParts: Int): PendingIntent {
+        val intent = Intent(SMS_DELIVERED_ACTION).apply {
+            setPackage(packageName)
+            putExtra(EXTRA_MESSAGE_ID, messageId)
+            putExtra(EXTRA_PART_INDEX, partIndex)
+            putExtra(EXTRA_TOTAL_PARTS, totalParts)
+        }
+        val requestCode = "$messageId-delivered-$partIndex".hashCode()
+        return PendingIntent.getBroadcast(
+            this, requestCode, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    private fun createNotificationChannel() {
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            "SMS Gateway",
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = "Muestra el estado del envío de SMS"
+        }
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun buildNotification(text: String): Notification {
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Vendel Gateway")
+            .setContentText(text)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .build()
+    }
+
+    private fun updateNotification(text: String) {
+        notificationManager.notify(NOTIFICATION_ID, buildNotification(text))
+    }
+
+    override fun onDestroy() {
+        serviceScope.cancel()
+        super.onDestroy()
+    }
+
+    companion object {
+        private const val TAG = "SmsSenderService"
+        const val CHANNEL_ID = "vendel_sms_channel"
+        const val NOTIFICATION_ID = 1
+        const val SMS_SENT_ACTION = "com.jimscope.vendel.SMS_SENT"
+        const val SMS_DELIVERED_ACTION = "com.jimscope.vendel.SMS_DELIVERED"
+        const val EXTRA_MESSAGE_ID = "message_id"
+        const val EXTRA_PART_INDEX = "part_index"
+        const val EXTRA_TOTAL_PARTS = "total_parts"
+
+        val multipartTracker = ConcurrentHashMap<String, AtomicInteger>()
+
+        fun start(context: Context) {
+            val intent = Intent(context, SmsSenderService::class.java)
+            context.startForegroundService(intent)
+        }
+    }
+}
