@@ -37,13 +37,22 @@ jobs:
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
 
-      - name: Build release APK
+      - name: Build release APKs
         run: ./gradlew assembleRelease
 
-      - name: Release with goreleaser
-        uses: goreleaser/goreleaser-action@v6
+      - name: Rename APKs
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          cd app/build/outputs/apk/release
+          mv app-universal-release.apk "vendel-v${VERSION}-universal.apk"
+          mv app-arm64-v8a-release.apk "vendel-v${VERSION}-arm64-v8a.apk"
+          mv app-armeabi-v7a-release.apk "vendel-v${VERSION}-armeabi-v7a.apk"
+          mv app-x86_64-release.apk "vendel-v${VERSION}-x86_64.apk"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          version: latest
-          args: release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: "Vendel ${{ github.ref_name }}"
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: app/build/outputs/apk/release/vendel-*.apk
