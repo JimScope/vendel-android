@@ -11,7 +11,8 @@ data class ConnectionConfig(
     val serverUrl: String = "",
     val apiKey: String = "",
     val deviceId: String = "",
-    val isConfigured: Boolean = false
+    val isConfigured: Boolean = false,
+    val lastSyncTimestamp: Long = 0L
 )
 
 @Singleton
@@ -26,7 +27,8 @@ class ConfigRepository @Inject constructor(
             serverUrl = securePreferences.serverUrl,
             apiKey = securePreferences.apiKey,
             deviceId = securePreferences.deviceId,
-            isConfigured = securePreferences.isConfigured
+            isConfigured = securePreferences.isConfigured,
+            lastSyncTimestamp = securePreferences.lastSyncTimestamp
         )
     }
 

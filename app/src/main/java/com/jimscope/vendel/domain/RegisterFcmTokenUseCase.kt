@@ -1,8 +1,10 @@
 package com.jimscope.vendel.domain
 
 import android.util.Log
+import com.google.firebase.messaging.FirebaseMessaging
 import com.jimscope.vendel.data.preferences.SecurePreferences
 import com.jimscope.vendel.data.repository.SmsRepository
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class RegisterFcmTokenUseCase @Inject constructor(
@@ -27,6 +29,17 @@ class RegisterFcmTokenUseCase @Inject constructor(
         val pending = securePreferences.pendingFcmToken
         if (pending.isNotBlank()) {
             invoke(pending)
+            return
+        }
+
+        // If no pending token, proactively fetch the current one from Firebase
+        if (securePreferences.isConfigured) {
+            try {
+                val currentToken = FirebaseMessaging.getInstance().token.await()
+                invoke(currentToken)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to fetch current FCM token", e)
+            }
         }
     }
 

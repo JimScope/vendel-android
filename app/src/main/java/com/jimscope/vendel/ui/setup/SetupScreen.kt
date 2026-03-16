@@ -207,9 +207,15 @@ private fun QrCameraPreview(onQrScanned: (String) -> Unit) {
     val context = LocalContext.current
     var scanned by remember { mutableStateOf(false) }
     val executor = remember { Executors.newSingleThreadExecutor() }
+    val scanner = remember { BarcodeScanning.getClient() }
+    var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
 
     DisposableEffect(Unit) {
-        onDispose { executor.shutdown() }
+        onDispose {
+            cameraProvider?.unbindAll()
+            executor.shutdown()
+            scanner.close()
+        }
     }
 
     Box(
@@ -224,7 +230,9 @@ private fun QrCameraPreview(onQrScanned: (String) -> Unit) {
                 val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
 
                 cameraProviderFuture.addListener({
-                    val cameraProvider = cameraProviderFuture.get()
+                    val provider = cameraProviderFuture.get()
+                    cameraProvider = provider
+
                     val preview = Preview.Builder().build().also {
                         it.surfaceProvider = previewView.surfaceProvider
                     }
@@ -245,7 +253,6 @@ private fun QrCameraPreview(onQrScanned: (String) -> Unit) {
                                         mediaImage,
                                         imageProxy.imageInfo.rotationDegrees
                                     )
-                                    val scanner = BarcodeScanning.getClient()
                                     scanner.process(inputImage)
                                         .addOnSuccessListener { barcodes ->
                                             for (barcode in barcodes) {
@@ -269,8 +276,8 @@ private fun QrCameraPreview(onQrScanned: (String) -> Unit) {
                         }
 
                     try {
-                        cameraProvider.unbindAll()
-                        cameraProvider.bindToLifecycle(
+                        provider.unbindAll()
+                        provider.bindToLifecycle(
                             ctx as androidx.lifecycle.LifecycleOwner,
                             CameraSelector.DEFAULT_BACK_CAMERA,
                             preview,

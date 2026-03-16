@@ -10,6 +10,7 @@ import com.jimscope.vendel.data.remote.dto.FcmTokenRequest
 import com.jimscope.vendel.data.remote.dto.IncomingSmsRequest
 import com.jimscope.vendel.data.remote.dto.PendingMessage
 import com.jimscope.vendel.data.remote.dto.StatusReportRequest
+import com.jimscope.vendel.data.preferences.SecurePreferences
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,19 +20,30 @@ class SmsRepository @Inject constructor(
     private val api: VendelApi,
     private val pendingReportDao: PendingReportDao,
     private val messageLogDao: MessageLogDao,
-    private val configRepository: ConfigRepository
+    private val configRepository: ConfigRepository,
+    private val securePreferences: SecurePreferences
 ) {
+    suspend fun healthCheck(): Result<Unit> {
+        return runCatching {
+            val response = api.fetchPending()
+            if (!response.isSuccessful) {
+                throw Exception("HTTP ${response.code()}")
+            }
+        }
+    }
+
     suspend fun fetchAndProcessPending(): Result<List<PendingMessage>> {
         return runCatching {
             val response = api.fetchPending()
             if (!response.isSuccessful) {
-                Log.e(TAG, "fetchPending failed: ${response.code()} ${response.message()}")
-                return Result.success(emptyList())
+                throw Exception("HTTP ${response.code()} ${response.message()}")
             }
             val body = response.body() ?: return Result.success(emptyList())
+            securePreferences.lastSyncTimestamp = System.currentTimeMillis()
             if (body.deviceId.isNotBlank()) {
                 configRepository.saveDeviceId(body.deviceId)
             }
+            configRepository.refresh()
             body.messages.forEach { msg ->
                 messageLogDao.insert(
                     MessageLogEntity(

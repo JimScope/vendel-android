@@ -24,6 +24,12 @@
     <string name="status_title">Estado</string>
     <string name="status_connected">Conectado</string>
     <string name="status_disconnected">Desconectado</string>
+    <string name="status_checking">Verificando…</string>
+    <string name="status_unreachable">Servidor no alcanzable</string>
+    <string name="status_retry">Reintentar</string>
+    <string name="status_last_sync">Último sync: %1$s</string>
+    <string name="status_never_synced">Sin sincronización aún</string>
+    <string name="status_fcm_pending">Notificaciones push pendientes de registrar</string>
     <string name="status_sent">Enviados</string>
     <string name="status_failed">Fallidos</string>
     <string name="status_pending">Pendientes</string>
@@ -51,7 +57,13 @@
     <string name="settings_battery_desc">Para que la app funcione en segundo plano, desactiva la optimización de batería.</string>
     <string name="settings_battery_configure">Configurar batería</string>
     <string name="settings_disconnect">Desconectar</string>
-    <string name="settings_version">Vendel Gateway v1.0</string>
+    <string name="settings_version">Vendel Gateway v%1$s</string>
+
+    <!-- Update -->
+    <string name="update_available">Actualización disponible</string>
+    <string name="update_version_info">Versión %1$s disponible (actual: %2$s)</string>
+    <string name="update_download">Descargar</string>
+    <string name="update_dismiss">Descartar</string>
 
     <!-- Notifications -->
     <string name="notification_channel_name">SMS Gateway</string>

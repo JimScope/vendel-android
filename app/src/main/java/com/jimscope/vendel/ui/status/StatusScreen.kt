@@ -1,6 +1,6 @@
 package com.jimscope.vendel.ui.status
 
-import android.content.Context
+import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,12 +19,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.HourglassBottom
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,12 +35,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jimscope.vendel.R
-import com.jimscope.vendel.service.SmsSenderService
 import com.jimscope.vendel.ui.theme.StatusDelivered
 import com.jimscope.vendel.ui.theme.StatusFailed
 import com.jimscope.vendel.ui.theme.StatusPending
@@ -50,7 +50,6 @@ fun StatusScreen(
     viewModel: StatusViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -68,38 +67,7 @@ fun StatusScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Connection status
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(12.dp)
-                        .clip(CircleShape)
-                        .background(if (uiState.config.isConfigured) StatusSent else StatusFailed)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = if (uiState.config.isConfigured) stringResource(R.string.status_connected) else stringResource(R.string.status_disconnected),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    if (uiState.config.isConfigured) {
-                        Text(
-                            text = uiState.config.serverUrl,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-        }
+        ConnectionStatusCard(uiState = uiState, onRetry = { viewModel.checkConnection() })
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -142,18 +110,122 @@ fun StatusScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
 
-        // Sync now button
-        Button(
-            onClick = { SmsSenderService.start(context) },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = VendelBrand),
-            enabled = uiState.config.isConfigured
+@Composable
+private fun ConnectionStatusCard(
+    uiState: StatusUiState,
+    onRetry: () -> Unit
+) {
+    val statusColor = when {
+        !uiState.config.isConfigured -> StatusFailed
+        uiState.isCheckingConnection -> StatusPending
+        uiState.serverReachable == true -> StatusSent
+        uiState.serverReachable == false -> StatusFailed
+        else -> StatusPending
+    }
+
+    val statusText = when {
+        !uiState.config.isConfigured -> stringResource(R.string.status_disconnected)
+        uiState.isCheckingConnection -> stringResource(R.string.status_checking)
+        uiState.serverReachable == true -> stringResource(R.string.status_connected)
+        uiState.serverReachable == false -> stringResource(R.string.status_unreachable)
+        else -> stringResource(R.string.status_disconnected)
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
-            Icon(Icons.Default.Sync, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(stringResource(R.string.status_sync_now))
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (uiState.isCheckingConnection) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(12.dp),
+                        strokeWidth = 2.dp,
+                        color = StatusPending
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(12.dp)
+                            .clip(CircleShape)
+                            .background(statusColor)
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    if (uiState.config.isConfigured) {
+                        Text(
+                            text = uiState.config.serverUrl,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                if (uiState.serverReachable == false && !uiState.isCheckingConnection) {
+                    Spacer(modifier = Modifier.width(12.dp))
+                    IconButton(onClick = onRetry) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = stringResource(R.string.status_retry),
+                            tint = VendelBrand
+                        )
+                    }
+                }
+            }
+
+            // Last sync timestamp
+            if (uiState.config.isConfigured && uiState.config.lastSyncTimestamp > 0L) {
+                Spacer(modifier = Modifier.height(8.dp))
+                val relativeTime = DateUtils.getRelativeTimeSpanString(
+                    uiState.config.lastSyncTimestamp,
+                    System.currentTimeMillis(),
+                    DateUtils.MINUTE_IN_MILLIS
+                )
+                Text(
+                    text = stringResource(R.string.status_last_sync, relativeTime),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else if (uiState.config.isConfigured) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.status_never_synced),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = StatusFailed
+                )
+            }
+
+            // FCM token warning
+            if (uiState.fcmTokenRegistered == false) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Warning,
+                        contentDescription = null,
+                        tint = StatusPending,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.status_fcm_pending),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = StatusPending
+                    )
+                }
+            }
         }
     }
 }

@@ -21,6 +21,9 @@ interface MessageLogDao {
     @Query("SELECT COUNT(*) FROM message_log WHERE status = :status")
     fun countByStatus(status: String): Flow<Int>
 
+    @Query("SELECT COUNT(*) FROM message_log WHERE status IN (:statuses)")
+    fun countByStatuses(statuses: List<String>): Flow<Int>
+
     @Query("DELETE FROM message_log WHERE timestamp < :cutoff")
     suspend fun pruneOlderThan(cutoff: Long)
 }

@@ -40,6 +40,14 @@ class SecurePreferences @Inject constructor(
         get() = prefs.getBoolean(KEY_INCOMING_SMS_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_INCOMING_SMS_ENABLED, value).apply()
 
+    var lastSyncTimestamp: Long
+        get() = prefs.getLong(KEY_LAST_SYNC, 0L)
+        set(value) = prefs.edit().putLong(KEY_LAST_SYNC, value).apply()
+
+    var dismissedUpdateVersion: String
+        get() = prefs.getString(KEY_DISMISSED_UPDATE, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_DISMISSED_UPDATE, value).apply()
+
     val isConfigured: Boolean
         get() = serverUrl.isNotBlank() && apiKey.isNotBlank()
 
@@ -53,5 +61,7 @@ class SecurePreferences @Inject constructor(
         private const val KEY_DEVICE_ID = "device_id"
         private const val KEY_PENDING_FCM_TOKEN = "pending_fcm_token"
         private const val KEY_INCOMING_SMS_ENABLED = "incoming_sms_enabled"
+        private const val KEY_LAST_SYNC = "last_sync_timestamp"
+        private const val KEY_DISMISSED_UPDATE = "dismissed_update_version"
     }
 }
