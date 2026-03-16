@@ -15,6 +15,7 @@ val VendelSecondary = Color(0xFFE0E8E4)
 val VendelSecondaryForeground = Color(0xFF545C58)
 
 val VendelBorder = Color(0xFFCCD4D0)
+val VendelBrandTint = Color(0x1A2DD4A8) // VendelBrand at 10% opacity
 val VendelDestructive = Color(0xFFDC2626)
 
 // Dark theme

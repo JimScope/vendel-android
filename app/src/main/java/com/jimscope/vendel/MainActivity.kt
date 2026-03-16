@@ -34,7 +34,7 @@ import androidx.work.WorkManager
 import com.jimscope.vendel.data.preferences.SecurePreferences
 import com.jimscope.vendel.ui.navigation.Screen
 import com.jimscope.vendel.ui.navigation.VendelNavHost
-import com.jimscope.vendel.ui.theme.VendelBrand
+import com.jimscope.vendel.ui.theme.VendelBrandTint
 import com.jimscope.vendel.ui.theme.VendelTheme
 import com.jimscope.vendel.worker.PendingSyncWorker
 import dagger.hilt.android.AndroidEntryPoint
@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
                                             }
                                         },
                                         colors = NavigationBarItemDefaults.colors(
-                                            indicatorColor = VendelBrand.copy(alpha = 0.1f)
+                                            indicatorColor = VendelBrandTint
                                         )
                                     )
                                 }

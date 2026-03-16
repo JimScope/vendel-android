@@ -18,17 +18,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,8 +40,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.getSystemService
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jimscope.vendel.BuildConfig
 import com.jimscope.vendel.R
 import com.jimscope.vendel.ui.theme.VendelBrand
+import com.jimscope.vendel.ui.theme.VendelBrandTint
 import com.jimscope.vendel.ui.theme.VendelDestructive
 
 @Composable
@@ -66,6 +69,54 @@ fun SettingsScreen(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        // Update banner
+        uiState.updateInfo?.let { update ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = VendelBrandTint
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.SystemUpdate,
+                            contentDescription = null,
+                            tint = VendelBrand
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            stringResource(R.string.update_available),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        stringResource(R.string.update_version_info, update.latestVersion, update.currentVersion),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row {
+                        OutlinedButton(onClick = {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(update.releasePageUrl))
+                            context.startActivity(intent)
+                        }) {
+                            Text(stringResource(R.string.update_download))
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        TextButton(onClick = {
+                            viewModel.dismissUpdate(update.latestVersion)
+                        }) {
+                            Text(stringResource(R.string.update_dismiss))
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         // Connection info
         Card(
@@ -173,7 +224,7 @@ fun SettingsScreen(
 
         // App version
         Text(
-            text = stringResource(R.string.settings_version),
+            text = stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.CenterHorizontally)
