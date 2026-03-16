@@ -1,0 +1,8 @@
+SMS gateway that connects your Android device to the Vendel platform for sending and receiving SMS messages via API.
+
+Features:
+- Forward incoming SMS to your server via webhook
+- Send SMS through your device from a REST API
+- QR code pairing for quick setup
+- Real-time delivery status tracking
+- Background operation with WorkManager

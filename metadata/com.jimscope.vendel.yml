@@ -1,0 +1,44 @@
+Categories:
+  - Connectivity
+  - Phone & SMS
+License: MIT
+AuthorName: JimScope
+AuthorWebSite: https://github.com/JimScope
+SourceCode: https://github.com/JimScope/vendel-android
+IssueTracker: https://github.com/JimScope/vendel-android/issues
+
+AutoName: Vendel Gateway
+
+Description: |
+  SMS gateway that connects your Android device to the Vendel platform
+  for sending and receiving SMS messages via API.
+
+  Features:
+  - Forward incoming SMS to your server via webhook
+  - Send SMS through your device from a REST API
+  - QR code pairing for quick setup
+  - Real-time delivery status tracking
+  - Background operation with WorkManager
+
+RepoType: git
+Repo: https://github.com/JimScope/vendel-android.git
+
+# TODO: Add FOSS flavor before submitting to F-Droid
+# Proprietary dependencies to replace:
+#   - com.google.firebase:firebase-messaging → UnifiedPush or polling
+#   - com.google.mlkit:barcode-scanning → ZXing
+#   - com.google.gms.google-services plugin → remove in FOSS flavor
+#
+# Once FOSS flavor exists, update build section:
+# Builds:
+#   - versionName: 0.1.0
+#     versionCode: 1
+#     commit: v0.1.0
+#     subdir: app
+#     gradle:
+#       - foss
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 0.1.0
+CurrentVersionCode: 1

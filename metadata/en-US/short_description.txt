@@ -1,0 +1,1 @@
+SMS gateway for the Vendel platform
