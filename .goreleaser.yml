@@ -1,0 +1,28 @@
+project_name: vendel-android
+
+before:
+  hooks:
+    - ./gradlew clean assembleRelease
+
+builds:
+  - skip: true
+
+release:
+  github:
+    owner: JimScope
+    name: vendel-android
+  draft: false
+  prerelease: auto
+  name_template: "Vendel v{{ .Version }}"
+
+extra_files:
+  - glob: app/build/outputs/apk/release/app-release.apk
+    name_template: "vendel-v{{ .Version }}.apk"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^ci:"
+      - "^chore:"
