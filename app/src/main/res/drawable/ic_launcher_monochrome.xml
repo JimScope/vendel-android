@@ -5,20 +5,20 @@
     android:viewportHeight="108">
     <!-- Left colon -->
     <path
-        android:fillColor="#2DD4A8"
+        android:fillColor="#000000"
         android:pathData="M40,42m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
     <path
-        android:fillColor="#2DD4A8"
+        android:fillColor="#000000"
         android:pathData="M40,66m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
     <!-- Capital V (Libre Baskerville Bold) -->
     <path
-        android:fillColor="#181c1b"
+        android:fillColor="#000000"
         android:pathData="M50.50 47.10L55.30 60.24L59.20 50.25Q59.98 48.27 60.34 47.22Q60.70 46.17 60.83 45.63Q60.94 45.09 60.94 44.67Q60.94 43.95 60.41 43.73Q59.86 43.50 58.24 43.50L58.24 42.30L66.77 42.30L66.77 43.50Q64.28 43.50 63.31 45.93L55.42 65.70L53.20 65.70L46.03 48.18Q45.25 46.29 44.61 45.29Q43.96 44.28 43.19 43.91Q42.41 43.53 41.23 43.53L41.23 42.30L52.58 42.30L52.58 43.53Q51.02 43.56 50.46 43.82Q49.91 44.07 49.91 44.73Q49.91 45.12 50.05 45.71Q50.20 46.29 50.50 47.10Z" />
     <!-- Right colon -->
     <path
-        android:fillColor="#2DD4A8"
+        android:fillColor="#000000"
         android:pathData="M68,42m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
     <path
-        android:fillColor="#2DD4A8"
+        android:fillColor="#000000"
         android:pathData="M68,66m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
 </vector>
