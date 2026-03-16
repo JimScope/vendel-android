@@ -1,9 +1,5 @@
 project_name: vendel-android
 
-before:
-  hooks:
-    - ./gradlew clean assembleRelease
-
 builds:
   - skip: true
 
@@ -16,8 +12,14 @@ release:
   name_template: "Vendel v{{ .Version }}"
 
 extra_files:
-  - glob: app/build/outputs/apk/release/app-release.apk
-    name_template: "vendel-v{{ .Version }}.apk"
+  - glob: app/build/outputs/apk/release/app-universal-release.apk
+    name_template: "vendel-v{{ .Version }}-universal.apk"
+  - glob: app/build/outputs/apk/release/app-arm64-v8a-release.apk
+    name_template: "vendel-v{{ .Version }}-arm64-v8a.apk"
+  - glob: app/build/outputs/apk/release/app-armeabi-v7a-release.apk
+    name_template: "vendel-v{{ .Version }}-armeabi-v7a.apk"
+  - glob: app/build/outputs/apk/release/app-x86_64-release.apk
+    name_template: "vendel-v{{ .Version }}-x86_64.apk"
 
 changelog:
   sort: asc
