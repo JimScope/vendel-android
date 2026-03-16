@@ -48,6 +48,10 @@ class SecurePreferences @Inject constructor(
         get() = prefs.getString(KEY_DISMISSED_UPDATE, "") ?: ""
         set(value) = prefs.edit().putString(KEY_DISMISSED_UPDATE, value).apply()
 
+    var hasSeenOnboarding: Boolean
+        get() = prefs.getBoolean(KEY_HAS_SEEN_ONBOARDING, false)
+        set(value) = prefs.edit().putBoolean(KEY_HAS_SEEN_ONBOARDING, value).apply()
+
     val isConfigured: Boolean
         get() = serverUrl.isNotBlank() && apiKey.isNotBlank()
 
@@ -63,5 +67,6 @@ class SecurePreferences @Inject constructor(
         private const val KEY_INCOMING_SMS_ENABLED = "incoming_sms_enabled"
         private const val KEY_LAST_SYNC = "last_sync_timestamp"
         private const val KEY_DISMISSED_UPDATE = "dismissed_update_version"
+        private const val KEY_HAS_SEEN_ONBOARDING = "has_seen_onboarding"
     }
 }

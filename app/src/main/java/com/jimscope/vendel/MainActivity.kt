@@ -70,10 +70,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             VendelTheme {
                 val navController = rememberNavController()
-                val startDestination = if (securePreferences.isConfigured) {
-                    Screen.Status.route
-                } else {
-                    Screen.Setup.route
+                val startDestination = when {
+                    securePreferences.isConfigured -> Screen.Status.route
+                    !securePreferences.hasSeenOnboarding -> Screen.Onboarding.route
+                    else -> Screen.Setup.route
                 }
 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                     Screen.Status.route,
                     Screen.Log.route,
                     Screen.Settings.route
-                )
+                ) && currentRoute != Screen.Onboarding.route
 
                 Scaffold(
                     bottomBar = {
@@ -116,7 +116,10 @@ class MainActivity : ComponentActivity() {
                     VendelNavHost(
                         navController = navController,
                         startDestination = startDestination,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        onOnboardingComplete = {
+                            securePreferences.hasSeenOnboarding = true
+                        }
                     )
                 }
             }

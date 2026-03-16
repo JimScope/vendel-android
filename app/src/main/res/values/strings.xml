@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">Vendel</string>
 
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Tu gateway SMS personal</string>
+    <string name="onboarding_welcome_desc">Envía y recibe SMS desde tu servidor usando tu propio teléfono Android. Sin costes por mensaje.</string>
+    <string name="onboarding_setup_title">Configuración rápida</string>
+    <string name="onboarding_setup_desc">Escanea el código QR del panel de Vendel o introduce la URL del servidor y tu API Key manualmente.</string>
+    <string name="onboarding_ready_title">Siempre activo</string>
+    <string name="onboarding_ready_desc">La app funciona en segundo plano para enviar y recibir mensajes de forma fiable, incluso con la pantalla apagada.</string>
+    <string name="onboarding_skip">Omitir</string>
+    <string name="onboarding_next">Siguiente</string>
+    <string name="onboarding_start">Empezar</string>
+
     <!-- Setup -->
     <string name="setup_title">Vendel Gateway</string>
     <string name="setup_subtitle">Conecta tu dispositivo para enviar SMS</string>
