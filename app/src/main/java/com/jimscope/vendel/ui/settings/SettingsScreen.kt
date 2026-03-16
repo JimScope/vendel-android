@@ -129,7 +129,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 SettingsRow(stringResource(R.string.settings_server), uiState.config.serverUrl.ifBlank { stringResource(R.string.settings_not_configured) })
-                SettingsRow("Device ID", uiState.config.deviceId.ifBlank { stringResource(R.string.settings_device_id_pending) })
+                SettingsRow(stringResource(R.string.settings_device_id), uiState.config.deviceId.ifBlank { stringResource(R.string.settings_device_id_pending) })
             }
         }
 

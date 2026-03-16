@@ -22,6 +22,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -94,8 +96,8 @@ class MainActivity : ComponentActivity() {
                                     } == true
 
                                     NavigationBarItem(
-                                        icon = { Icon(item.icon, contentDescription = item.label) },
-                                        label = { Text(item.label) },
+                                        icon = { Icon(item.icon, contentDescription = stringResource(item.labelRes)) },
+                                        label = { Text(stringResource(item.labelRes)) },
                                         selected = selected,
                                         onClick = {
                                             navController.navigate(item.route) {
@@ -154,12 +156,12 @@ class MainActivity : ComponentActivity() {
 
 data class BottomNavItem(
     val route: String,
-    val label: String,
+    @StringRes val labelRes: Int,
     val icon: ImageVector
 )
 
 val bottomNavItems = listOf(
-    BottomNavItem(Screen.Status.route, "Estado", Icons.Default.Home),
-    BottomNavItem(Screen.Log.route, "Historial", Icons.Default.History),
-    BottomNavItem(Screen.Settings.route, "Ajustes", Icons.Default.Settings)
+    BottomNavItem(Screen.Status.route, R.string.nav_status, Icons.Default.Home),
+    BottomNavItem(Screen.Log.route, R.string.nav_log, Icons.Default.History),
+    BottomNavItem(Screen.Settings.route, R.string.nav_settings, Icons.Default.Settings)
 )

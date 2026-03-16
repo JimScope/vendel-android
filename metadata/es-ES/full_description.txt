@@ -1,0 +1,8 @@
+Gateway SMS que conecta tu dispositivo Android a la plataforma Vendel para enviar y recibir mensajes SMS a través de una API.
+
+Funcionalidades:
+- Reenvía SMS entrantes a tu servidor mediante webhook
+- Envía SMS desde tu dispositivo a través de una API REST
+- Emparejamiento por código QR para una configuración rápida
+- Seguimiento del estado de entrega en tiempo real
+- Funcionamiento en segundo plano con WorkManager
