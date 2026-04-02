@@ -21,7 +21,7 @@
     <string name="setup_allow_camera">Permitir cámara</string>
     <string name="setup_qr_hint">Escanea el código QR del panel de Vendel</string>
     <string name="setup_server_url_label">URL del servidor</string>
-    <string name="setup_server_url_placeholder">https://api.vendel.cc</string>
+    <string name="setup_server_url_placeholder">https://app.vendel.cc</string>
     <string name="setup_api_key_label">API Key</string>
     <string name="setup_api_key_placeholder">Tu clave de API del dispositivo</string>
     <string name="setup_connecting">Conectando…</string>
@@ -69,7 +69,13 @@
     <string name="settings_battery_desc">Para que la app funcione en segundo plano, desactiva la optimización de batería.</string>
     <string name="settings_battery_configure">Configurar batería</string>
     <string name="settings_disconnect">Desconectar</string>
-    <string name="settings_version">Vendel Gateway v%1$s</string>
+    <string name="settings_version">Vendel Gateway v%1$s (%2$d)</string>
+
+    <!-- GitHub -->
+    <string name="settings_github_title">Apoya el Proyecto</string>
+    <string name="settings_github_desc">¡Si te gusta Vendel, por favor considera darnos una estrella en GitHub!</string>
+    <string name="settings_github_star_project">Estrella al Proyecto (Servidor)</string>
+    <string name="settings_github_star_app">Estrella a la App (Android)</string>
 
     <!-- Update -->
     <string name="update_available">Actualización disponible</string>
