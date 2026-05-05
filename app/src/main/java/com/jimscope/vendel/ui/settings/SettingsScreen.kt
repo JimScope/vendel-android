@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.getSystemService
@@ -195,8 +196,16 @@ fun SettingsScreen(
                     )
                     val summary = when (uiState.senderFilterMode) {
                         SenderFilterMode.OFF -> stringResource(R.string.settings_sender_filter_summary_off)
-                        SenderFilterMode.ALLOW -> stringResource(R.string.settings_sender_filter_summary_allow, uiState.senderFilterCount)
-                        SenderFilterMode.BLOCK -> stringResource(R.string.settings_sender_filter_summary_block, uiState.senderFilterCount)
+                        SenderFilterMode.ALLOW -> pluralStringResource(
+                            R.plurals.settings_sender_filter_summary_allow,
+                            uiState.senderFilterCount,
+                            uiState.senderFilterCount
+                        )
+                        SenderFilterMode.BLOCK -> pluralStringResource(
+                            R.plurals.settings_sender_filter_summary_block,
+                            uiState.senderFilterCount,
+                            uiState.senderFilterCount
+                        )
                     }
                     Text(
                         summary,

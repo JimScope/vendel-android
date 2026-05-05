@@ -46,14 +46,13 @@ class SettingsViewModel @Inject constructor(
         _updateInfo,
         senderFilterRepository.mode,
         senderFilterRepository.count
-    ) { values ->
-        @Suppress("UNCHECKED_CAST")
+    ) { config, smsEnabled, update, mode, count ->
         SettingsUiState(
-            config = values[0] as ConnectionConfig,
-            incomingSmsEnabled = values[1] as Boolean,
-            updateInfo = values[2] as UpdateInfo?,
-            senderFilterMode = values[3] as SenderFilterMode,
-            senderFilterCount = values[4] as Int
+            config = config,
+            incomingSmsEnabled = smsEnabled,
+            updateInfo = update,
+            senderFilterMode = mode,
+            senderFilterCount = count
         )
     }.stateIn(
         scope = viewModelScope,

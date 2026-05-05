@@ -101,8 +101,14 @@
     <!-- Sender filter -->
     <string name="settings_sender_filter_title">Filtro de remitentes</string>
     <string name="settings_sender_filter_summary_off">Desactivado</string>
-    <string name="settings_sender_filter_summary_allow">Allow · %1$d reglas</string>
-    <string name="settings_sender_filter_summary_block">Block · %1$d reglas</string>
+    <plurals name="settings_sender_filter_summary_allow">
+        <item quantity="one">Allow · %1$d regla</item>
+        <item quantity="other">Allow · %1$d reglas</item>
+    </plurals>
+    <plurals name="settings_sender_filter_summary_block">
+        <item quantity="one">Block · %1$d regla</item>
+        <item quantity="other">Block · %1$d reglas</item>
+    </plurals>
     <string name="filter_screen_title">Filtro de remitentes</string>
     <string name="filter_mode_off">Desactivado</string>
     <string name="filter_mode_allow">Allow</string>
