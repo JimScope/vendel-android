@@ -11,9 +11,12 @@ class UpdateRepository @Inject constructor(
 ) {
     suspend fun getLatestRelease(): Result<GitHubReleaseResponse> {
         return runCatching {
-            val response = gitHubApi.getLatestRelease(OWNER, REPO)
-            if (response.isSuccessful && response.body() != null) {
-                response.body()!!
+            val response = gitHubApi.getReleases(OWNER, REPO, perPage = 1)
+            val body = response.body()
+            if (response.isSuccessful && !body.isNullOrEmpty()) {
+                body.first()
+            } else if (response.isSuccessful && body.isNullOrEmpty()) {
+                throw Exception("No releases published yet")
             } else {
                 throw Exception("GitHub API error: ${response.code()}")
             }

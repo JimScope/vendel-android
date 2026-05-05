@@ -29,14 +29,26 @@ class CheckForUpdateUseCase @Inject constructor(
     }
 
     private fun isNewer(latest: String, current: String): Boolean {
-        val latestParts = latest.split(".").mapNotNull { it.toIntOrNull() }
-        val currentParts = current.split(".").mapNotNull { it.toIntOrNull() }
-        for (i in 0 until maxOf(latestParts.size, currentParts.size)) {
-            val l = latestParts.getOrElse(i) { 0 }
-            val c = currentParts.getOrElse(i) { 0 }
+        val (latestCore, latestPre) = splitSemver(latest)
+        val (currentCore, currentPre) = splitSemver(current)
+        for (i in 0 until maxOf(latestCore.size, currentCore.size)) {
+            val l = latestCore.getOrElse(i) { 0 }
+            val c = currentCore.getOrElse(i) { 0 }
             if (l > c) return true
             if (l < c) return false
         }
-        return false
+        return when {
+            latestPre == null && currentPre == null -> false
+            latestPre == null && currentPre != null -> true
+            latestPre != null && currentPre == null -> false
+            else -> latestPre!! > currentPre!!
+        }
+    }
+
+    private fun splitSemver(version: String): Pair<List<Int>, String?> {
+        val parts = version.split("-", limit = 2)
+        val core = parts[0].split(".").mapNotNull { it.toIntOrNull() }
+        val pre = parts.getOrNull(1)
+        return core to pre
     }
 }
