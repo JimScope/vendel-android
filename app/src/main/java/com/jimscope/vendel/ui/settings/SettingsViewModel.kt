@@ -7,6 +7,8 @@ import com.jimscope.vendel.BuildConfig
 import com.jimscope.vendel.data.preferences.SecurePreferences
 import com.jimscope.vendel.data.repository.ConfigRepository
 import com.jimscope.vendel.data.repository.ConnectionConfig
+import com.jimscope.vendel.data.repository.SenderFilterMode
+import com.jimscope.vendel.data.repository.SenderFilterRepository
 import com.jimscope.vendel.domain.CheckForUpdateUseCase
 import com.jimscope.vendel.domain.UpdateInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,14 +24,17 @@ import javax.inject.Inject
 data class SettingsUiState(
     val config: ConnectionConfig = ConnectionConfig(),
     val incomingSmsEnabled: Boolean = false,
-    val updateInfo: UpdateInfo? = null
+    val updateInfo: UpdateInfo? = null,
+    val senderFilterMode: SenderFilterMode = SenderFilterMode.OFF,
+    val senderFilterCount: Int = 0
 )
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val configRepository: ConfigRepository,
     private val securePreferences: SecurePreferences,
-    private val checkForUpdate: CheckForUpdateUseCase
+    private val checkForUpdate: CheckForUpdateUseCase,
+    senderFilterRepository: SenderFilterRepository
 ) : ViewModel() {
 
     private val _incomingSmsEnabled = MutableStateFlow(securePreferences.incomingSmsEnabled)
@@ -38,12 +43,16 @@ class SettingsViewModel @Inject constructor(
     val uiState: StateFlow<SettingsUiState> = combine(
         configRepository.config,
         _incomingSmsEnabled,
-        _updateInfo
-    ) { config, smsEnabled, update ->
+        _updateInfo,
+        senderFilterRepository.mode,
+        senderFilterRepository.count
+    ) { config, smsEnabled, update, mode, count ->
         SettingsUiState(
             config = config,
             incomingSmsEnabled = smsEnabled,
-            updateInfo = update
+            updateInfo = update,
+            senderFilterMode = mode,
+            senderFilterCount = count
         )
     }.stateIn(
         scope = viewModelScope,
@@ -76,7 +85,10 @@ class SettingsViewModel @Inject constructor(
         _incomingSmsEnabled.value = enabled
     }
 
-    fun disconnect() {
-        configRepository.disconnect()
+    fun disconnect(onComplete: () -> Unit) {
+        viewModelScope.launch {
+            configRepository.disconnect()
+            onComplete()
+        }
     }
 }

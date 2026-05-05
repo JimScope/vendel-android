@@ -97,4 +97,31 @@
     <string name="nav_status">Estado</string>
     <string name="nav_log">Historial</string>
     <string name="nav_settings">Ajustes</string>
+
+    <!-- Sender filter -->
+    <string name="settings_sender_filter_title">Filtro de remitentes</string>
+    <string name="settings_sender_filter_summary_off">Desactivado</string>
+    <plurals name="settings_sender_filter_summary_allow">
+        <item quantity="one">Allow · %1$d regla</item>
+        <item quantity="other">Allow · %1$d reglas</item>
+    </plurals>
+    <plurals name="settings_sender_filter_summary_block">
+        <item quantity="one">Block · %1$d regla</item>
+        <item quantity="other">Block · %1$d reglas</item>
+    </plurals>
+    <string name="filter_screen_title">Filtro de remitentes</string>
+    <string name="filter_mode_off">Desactivado</string>
+    <string name="filter_mode_allow">Allow</string>
+    <string name="filter_mode_block">Block</string>
+    <string name="filter_empty_allow_warning">Modo Allow con lista vacía bloquea todo</string>
+    <string name="filter_add">Agregar</string>
+    <string name="filter_pattern_label">Número o nombre del remitente</string>
+    <string name="filter_use_prefix">Coincidencia por prefijo</string>
+    <string name="filter_pick_contact">Elegir desde contactos</string>
+    <string name="filter_cancel">Cancelar</string>
+    <string name="filter_save">Guardar</string>
+    <string name="filter_delete_cd">Eliminar regla</string>
+    <string name="filter_descriptor_prefix">Prefix</string>
+    <string name="filter_descriptor_alpha_exact">Alfa, exact</string>
+    <string name="filter_descriptor_exact">Exact</string>
 </resources>

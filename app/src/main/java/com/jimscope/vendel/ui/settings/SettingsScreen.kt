@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
 import android.provider.Settings
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.SystemUpdate
@@ -38,12 +40,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.getSystemService
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jimscope.vendel.BuildConfig
 import com.jimscope.vendel.R
+import com.jimscope.vendel.data.repository.SenderFilterMode
 import com.jimscope.vendel.ui.theme.VendelBrand
 import com.jimscope.vendel.ui.theme.VendelBrandTint
 import com.jimscope.vendel.ui.theme.VendelDestructive
@@ -51,6 +55,7 @@ import com.jimscope.vendel.ui.theme.VendelDestructive
 @Composable
 fun SettingsScreen(
     onDisconnect: () -> Unit,
+    onNavigateToSenderFilter: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -170,6 +175,54 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Sender filter
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onNavigateToSenderFilter() },
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.settings_sender_filter_title),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    val summary = when (uiState.senderFilterMode) {
+                        SenderFilterMode.OFF -> stringResource(R.string.settings_sender_filter_summary_off)
+                        SenderFilterMode.ALLOW -> pluralStringResource(
+                            R.plurals.settings_sender_filter_summary_allow,
+                            uiState.senderFilterCount,
+                            uiState.senderFilterCount
+                        )
+                        SenderFilterMode.BLOCK -> pluralStringResource(
+                            R.plurals.settings_sender_filter_summary_block,
+                            uiState.senderFilterCount,
+                            uiState.senderFilterCount
+                        )
+                    }
+                    Text(
+                        summary,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Battery optimization
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -257,8 +310,7 @@ fun SettingsScreen(
         // Disconnect button
         Button(
             onClick = {
-                viewModel.disconnect()
-                onDisconnect()
+                viewModel.disconnect(onComplete = onDisconnect)
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = VendelDestructive)

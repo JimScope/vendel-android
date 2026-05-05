@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.jimscope.vendel.ui.filter.SenderFilterScreen
 import com.jimscope.vendel.ui.log.MessageLogScreen
 import com.jimscope.vendel.ui.onboarding.OnboardingScreen
 import com.jimscope.vendel.ui.settings.SettingsScreen
@@ -19,6 +20,7 @@ sealed class Screen(val route: String) {
     data object Status : Screen("status")
     data object Log : Screen("log")
     data object Settings : Screen("settings")
+    data object SenderFilter : Screen("sender_filter")
 }
 
 @Composable
@@ -68,7 +70,15 @@ fun VendelNavHost(
                     navController.navigate(Screen.Setup.route) {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onNavigateToSenderFilter = {
+                    navController.navigate(Screen.SenderFilter.route)
                 }
+            )
+        }
+        composable(Screen.SenderFilter.route) {
+            SenderFilterScreen(
+                onBack = { navController.popBackStack() }
             )
         }
     }

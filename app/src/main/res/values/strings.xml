@@ -97,4 +97,31 @@
     <string name="nav_status">Status</string>
     <string name="nav_log">Log</string>
     <string name="nav_settings">Settings</string>
+
+    <!-- Sender filter -->
+    <string name="settings_sender_filter_title">Sender filter</string>
+    <string name="settings_sender_filter_summary_off">Off</string>
+    <plurals name="settings_sender_filter_summary_allow">
+        <item quantity="one">Allow · %1$d rule</item>
+        <item quantity="other">Allow · %1$d rules</item>
+    </plurals>
+    <plurals name="settings_sender_filter_summary_block">
+        <item quantity="one">Block · %1$d rule</item>
+        <item quantity="other">Block · %1$d rules</item>
+    </plurals>
+    <string name="filter_screen_title">Sender filter</string>
+    <string name="filter_mode_off">Off</string>
+    <string name="filter_mode_allow">Allow</string>
+    <string name="filter_mode_block">Block</string>
+    <string name="filter_empty_allow_warning">Allow mode with empty list blocks everything</string>
+    <string name="filter_add">Add</string>
+    <string name="filter_pattern_label">Number or sender name</string>
+    <string name="filter_use_prefix">Match by prefix</string>
+    <string name="filter_pick_contact">Pick from contacts</string>
+    <string name="filter_cancel">Cancel</string>
+    <string name="filter_save">Save</string>
+    <string name="filter_delete_cd">Delete rule</string>
+    <string name="filter_descriptor_prefix">Prefix</string>
+    <string name="filter_descriptor_alpha_exact">Alpha, exact</string>
+    <string name="filter_descriptor_exact">Exact</string>
 </resources>

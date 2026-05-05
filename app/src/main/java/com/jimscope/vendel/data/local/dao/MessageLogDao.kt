@@ -26,4 +26,7 @@ interface MessageLogDao {
 
     @Query("DELETE FROM message_log WHERE timestamp < :cutoff")
     suspend fun pruneOlderThan(cutoff: Long)
+
+    @Query("DELETE FROM message_log")
+    suspend fun deleteAll()
 }

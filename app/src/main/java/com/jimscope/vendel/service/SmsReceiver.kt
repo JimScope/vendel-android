@@ -7,6 +7,7 @@ import android.provider.Telephony
 import android.util.Log
 import com.jimscope.vendel.BuildConfig
 import com.jimscope.vendel.data.preferences.SecurePreferences
+import com.jimscope.vendel.data.repository.SenderFilterRepository
 import com.jimscope.vendel.data.repository.SmsRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +22,7 @@ class SmsReceiver : BroadcastReceiver() {
 
     @Inject lateinit var smsRepository: SmsRepository
     @Inject lateinit var securePreferences: SecurePreferences
+    @Inject lateinit var senderFilterRepository: SenderFilterRepository
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
@@ -36,11 +38,13 @@ class SmsReceiver : BroadcastReceiver() {
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
                 for ((sender, parts) in grouped) {
+                    val forwardableSender = sender.takeUnless { it == "unknown" }
+                    if (!senderFilterRepository.shouldForward(forwardableSender)) {
+                        if (BuildConfig.DEBUG) Log.d(TAG, "Filtered out: $sender")
+                        continue
+                    }
                     val body = parts.joinToString("") { it.messageBody ?: "" }
-                    val timestamp = Instant.ofEpochMilli(
-                        parts.first().timestampMillis
-                    ).toString()
-
+                    val timestamp = Instant.ofEpochMilli(parts.first().timestampMillis).toString()
                     if (BuildConfig.DEBUG) Log.d(TAG, "Incoming SMS from $sender")
                     smsRepository.reportIncoming(sender, body, timestamp)
                 }

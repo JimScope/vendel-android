@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.jimscope.vendel.data.local.VendelDatabase
 import com.jimscope.vendel.data.local.dao.MessageLogDao
 import com.jimscope.vendel.data.local.dao.PendingReportDao
+import com.jimscope.vendel.data.local.dao.SenderFilterDao
+import com.jimscope.vendel.data.local.migration.MIGRATION_1_2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,11 +26,14 @@ object DatabaseModule {
         context,
         VendelDatabase::class.java,
         "vendel_database"
-    ).build()
+    ).addMigrations(MIGRATION_1_2).build()
 
     @Provides
     fun providePendingReportDao(db: VendelDatabase): PendingReportDao = db.pendingReportDao()
 
     @Provides
     fun provideMessageLogDao(db: VendelDatabase): MessageLogDao = db.messageLogDao()
+
+    @Provides
+    fun provideSenderFilterDao(db: VendelDatabase): SenderFilterDao = db.senderFilterDao()
 }
