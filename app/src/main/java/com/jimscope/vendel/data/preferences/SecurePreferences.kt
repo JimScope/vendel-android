@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import com.jimscope.vendel.data.repository.SenderFilterMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -54,6 +55,12 @@ class SecurePreferences @Inject constructor(
         get() = prefs.getBoolean(KEY_HAS_SEEN_ONBOARDING, false)
         set(value) = prefs.edit().putBoolean(KEY_HAS_SEEN_ONBOARDING, value).apply()
 
+    var senderFilterMode: SenderFilterMode
+        get() = runCatching {
+            SenderFilterMode.valueOf(prefs.getString(KEY_SENDER_FILTER_MODE, null) ?: SenderFilterMode.OFF.name)
+        }.getOrDefault(SenderFilterMode.OFF)
+        set(value) = prefs.edit().putString(KEY_SENDER_FILTER_MODE, value.name).apply()
+
     val isConfigured: Boolean
         get() = serverUrl.isNotBlank() && apiKey.isNotBlank()
 
@@ -70,5 +77,6 @@ class SecurePreferences @Inject constructor(
         private const val KEY_LAST_SYNC = "last_sync_timestamp"
         private const val KEY_DISMISSED_UPDATE = "dismissed_update_version"
         private const val KEY_HAS_SEEN_ONBOARDING = "has_seen_onboarding"
+        private const val KEY_SENDER_FILTER_MODE = "sender_filter_mode"
     }
 }
