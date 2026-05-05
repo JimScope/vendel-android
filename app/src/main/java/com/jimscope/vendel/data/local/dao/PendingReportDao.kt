@@ -20,4 +20,7 @@ interface PendingReportDao {
 
     @Query("SELECT COUNT(*) FROM pending_reports")
     fun countFlow(): Flow<Int>
+
+    @Query("DELETE FROM pending_reports")
+    suspend fun deleteAll()
 }

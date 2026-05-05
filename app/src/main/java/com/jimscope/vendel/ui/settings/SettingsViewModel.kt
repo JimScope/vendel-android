@@ -76,7 +76,10 @@ class SettingsViewModel @Inject constructor(
         _incomingSmsEnabled.value = enabled
     }
 
-    fun disconnect() {
-        configRepository.disconnect()
+    fun disconnect(onComplete: () -> Unit) {
+        viewModelScope.launch {
+            configRepository.disconnect()
+            onComplete()
+        }
     }
 }

@@ -257,8 +257,7 @@ fun SettingsScreen(
         // Disconnect button
         Button(
             onClick = {
-                viewModel.disconnect()
-                onDisconnect()
+                viewModel.disconnect(onComplete = onDisconnect)
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = VendelDestructive)
