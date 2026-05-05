@@ -29,13 +29,11 @@ class SenderFilterRepository @Inject constructor(
 
     suspend fun shouldForward(rawSender: String?): Boolean {
         val currentMode = _mode.value
-        val hasSender = rawSender != null
-        val matched = if (hasSender) {
-            dao.matches(rawSender!!.trim().lowercase(Locale.ROOT))
-        } else {
-            false
-        }
-        return SenderFilterDecision.decide(currentMode, matched, hasSender)
+        val matched = rawSender
+            ?.trim()
+            ?.lowercase(Locale.ROOT)
+            ?.let { dao.matches(it) } ?: false
+        return SenderFilterDecision.decide(currentMode, matched, hasSender = rawSender != null)
     }
 
     suspend fun add(pattern: String, isPrefix: Boolean, label: String?) {
