@@ -14,12 +14,12 @@ hilt {
 
 android {
     namespace = "com.jimscope.vendel"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.jimscope.vendel"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "0.1.0"
 
@@ -94,6 +94,7 @@ android {
             )
         }
     }
+    compileSdkMinor = 0
 }
 
 val abiCodes = mapOf(
@@ -101,6 +102,12 @@ val abiCodes = mapOf(
     "arm64-v8a" to 2,
     "x86_64" to 3,
 )
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+    }
+}
 
 androidComponents {
     onVariants { variant ->

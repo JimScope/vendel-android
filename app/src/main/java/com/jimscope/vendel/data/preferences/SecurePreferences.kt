@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.jimscope.vendel.data.preferences
 
 import android.content.Context

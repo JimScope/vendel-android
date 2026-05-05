@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -36,6 +37,7 @@ import androidx.work.WorkManager
 import com.jimscope.vendel.data.preferences.SecurePreferences
 import com.jimscope.vendel.ui.navigation.Screen
 import com.jimscope.vendel.ui.navigation.VendelNavHost
+import com.jimscope.vendel.ui.theme.VendelBrandDark
 import com.jimscope.vendel.ui.theme.VendelBrandTint
 import com.jimscope.vendel.ui.theme.VendelTheme
 import com.jimscope.vendel.worker.PendingSyncWorker
@@ -107,6 +109,10 @@ class MainActivity : ComponentActivity() {
                                             }
                                         },
                                         colors = NavigationBarItemDefaults.colors(
+                                            selectedIconColor = VendelBrandDark,
+                                            selectedTextColor = MaterialTheme.colorScheme.onBackground,
+                                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                             indicatorColor = VendelBrandTint
                                         )
                                     )
