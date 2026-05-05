@@ -20,8 +20,8 @@ interface SenderFilterDao {
         """
         SELECT EXISTS(
             SELECT 1 FROM sender_filters
-            WHERE (is_prefix = 0 AND LOWER(pattern) = :sender)
-               OR (is_prefix = 1 AND :sender LIKE LOWER(pattern) || '%')
+            WHERE (is_prefix = 0 AND LOWER(pattern) = LOWER(:sender))
+               OR (is_prefix = 1 AND LOWER(:sender) LIKE LOWER(pattern) || '%')
         )
         """
     )
