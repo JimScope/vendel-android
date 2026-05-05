@@ -3,6 +3,7 @@ package com.jimscope.vendel.data.repository
 import com.jimscope.vendel.data.local.dao.MessageLogDao
 import com.jimscope.vendel.data.local.dao.PendingReportDao
 import com.jimscope.vendel.data.preferences.SecurePreferences
+import com.jimscope.vendel.data.repository.SenderFilterRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +22,8 @@ data class ConnectionConfig(
 class ConfigRepository @Inject constructor(
     private val securePreferences: SecurePreferences,
     private val messageLogDao: MessageLogDao,
-    private val pendingReportDao: PendingReportDao
+    private val pendingReportDao: PendingReportDao,
+    private val senderFilterRepository: SenderFilterRepository
 ) {
     private val _config = MutableStateFlow(loadConfig())
     val config: StateFlow<ConnectionConfig> = _config.asStateFlow()
@@ -50,6 +52,7 @@ class ConfigRepository @Inject constructor(
     suspend fun disconnect() {
         messageLogDao.deleteAll()
         pendingReportDao.deleteAll()
+        senderFilterRepository.reset()
         securePreferences.clear()
         _config.value = ConnectionConfig()
     }
